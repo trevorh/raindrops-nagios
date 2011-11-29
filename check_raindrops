@@ -1,0 +1,33 @@
+#!/usr/bin/env ruby
+
+#script to check the unicorn backlog
+
+#requires the nagios gem, raindrops and rubygems
+
+$LOAD_PATH.unshift '../lib'
+require 'rubygems'
+require 'raindrops'
+require 'nagios'
+
+class CheckRaindrops < Nagios::Plugin
+  def warning (x)
+    x > threshold(:warning)
+  end
+
+  def critical (x)
+    x > threshold(:critical)
+  end
+
+  def measure
+    addr = [ "/tmp/unicorn.sock" ]
+    @stats = Raindrops::Linux.unix_listener_stats(addr)
+    @stats[0].queued
+  end
+
+  def to_s(value)
+    "QUEUE #{status}: #{@stats[0].queued}"
+  end
+
+end
+
+CheckRaindrops.run!
