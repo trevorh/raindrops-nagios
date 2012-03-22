@@ -21,13 +21,14 @@ class CheckRaindrops < Nagios::Plugin
   def measure
     addr = [ "/tmp/unicorn.sock" ]
     @stats = Raindrops::Linux.unix_listener_stats(addr)
-    @stats[0].queued
+    @stats["/tmp/unicorn.sock"][:queued]
   end
 
   def to_s(value)
-    "QUEUE #{status}: #{@stats[0].queued}"
+    "QUEUE #{status}: #{@stats["/tmp/unicorn.sock"][:queued]}"
   end
 
 end
+
 
 CheckRaindrops.run!
